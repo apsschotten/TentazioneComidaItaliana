@@ -10,6 +10,27 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "SQlite"
+  url      = env("DATABASE_URL")  npm install @prisma/client
+}
+
+enum Tipo {
+  CLIENTE
+  ADMIN
+}
+
+model Usuario{
+  id Int @id @default(autoincrement())
+  nome String
+  email String @unique
+  senha String
+  tipo Tipo @default(CLIENTE)
+}
+
+model Mesa{
+
+id Int @id @default(autoincrement())
+codigo String @unique
+lugares Int
+
 }

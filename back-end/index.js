@@ -4,11 +4,6 @@ const app = express();
 
 const usuarioController = require('../back-end/controllers/usuarioControllers');
 
-const mesaControllers = require("../back-end/controllers/mesaControllers")
-
-const mesaRoutes = require("../back-end/routes/mesaRoutes")
-app.use("/mesa", mesaControllers);
-
 const usuarioRoutes = require("../back-end/routes/usuarioRoutes");
 app.use("/usuario", usuarioRoutes);
 

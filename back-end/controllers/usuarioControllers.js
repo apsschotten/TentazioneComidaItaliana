@@ -1,40 +1,34 @@
-const path = require("path");
+const bcrypt = require("bcrypt");
+const { PrismaClient } = require("@prisma/client");
 
-const {prismaclient} = require("@prisma/client");
-const client = new prismaclient();
+const client = new PrismaClient();
 
-class usuariocontroller {
-     static async cadastrar(req, res) {
-        
-        console.log(req.body);
+class usuarioController {
+  static async cadastrar(req, res) {
+    try {
+      console.log(req.body);
 
-        const { nome, email, senha } = req.body;
+      const { nome, email, senha } = req.body;
 
+      const hashSenha = await bcrypt.hash(senha, 10);
 
-       const usuario = await client.usuario.create({
-            data: {
-                nome,
-                email,
-                senha: hashSenha,
-            },
-        });
-
-        res.json({
-            usuarioId: usuario.id,
-        });
-
-    }
-
-    static async login(req, res) {
-        const { email, senha } = req.body;
-
-        const usuario = await client.usuario.findUnique({
-            where: {
-                email: email,
-            },
+      const usuario = await client.usuario.create({
+        data: {
+          nome,
+          email,
+          senha: hashSenha,
         },
-    )
+      });
+
+      res.json({
+        usuarioId: usuario.id,
+        message: "Usuário cadastrado com sucesso!",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao cadastrar usuário" });
     }
+  }
 }
 
-module.exports = path;
+module.exports = usuarioController;

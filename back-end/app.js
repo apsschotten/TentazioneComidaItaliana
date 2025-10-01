@@ -1,4 +1,4 @@
-import express, { urlencoded, json } from 'express';
+import { express, urlencoded, json } from 'express';
 import router from "./routes/usuarioRoutes";
 import { verificarAutenticacao, verificarStatus } from './controllers/usuarioControllers';
 

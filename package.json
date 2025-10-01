@@ -1,21 +1,9 @@
 {
-  "dependencies": {
-    "@prisma/client": "^6.16.2",
-    "bcrypt": "^6.0.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
-  },
   "name": "tentazionecomidaitaliana",
   "version": "1.0.0",
   "description": "> Projeto referente às matérias PTAS3 &amp; PTAC4. Desenvolvido por Ana Paula S. Schotten e Henrique João A. Trachta Filho, INFO 6B.",
   "main": "index.js",
-  "devDependencies": {
-    "jest": "^30.2.0",
-    "prisma": "^6.16.2",
-    "supertest": "^7.1.4"
-  },
   "scripts": {
-    "start": "node --watch index.js",
     "test": "jest"
   },
   "repository": {
@@ -29,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/apsschotten/TentazioneComidaItaliana/issues"
   },
-  "homepage": "https://github.com/apsschotten/TentazioneComidaItaliana#readme"
+  "homepage": "https://github.com/apsschotten/TentazioneComidaItaliana#readme",
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "prisma": "^6.16.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.3"
+  }
 }

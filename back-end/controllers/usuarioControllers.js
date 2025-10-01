@@ -1,62 +1,109 @@
-const bcrypt = require("bcrypt");
-const { PrismaClient } = require("@prisma/client");
+import { genSaltSync, hashSync, compareSync } from "bcryptjs";
+import { sign, verify } from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
 class usuarioController {
+
   static async cadastrar(req, res) {
-    try {
-      console.log(req.body);
-      const { nome, email, senha } = req.body;
 
-      const hashSenha = await bcrypt.hash(senha, 10);
+    console.log(req.body);
 
-      const usuario = await client.usuario.create({
-        data: {
-          nome,
-          email,
-          senha: hashSenha,
-        },
-      });
+    const { nome, email, senha } = req.body;
 
-      res.json({
-        usuarioId: usuario.id,
-        message: "Usuário cadastrado com sucesso!",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao cadastrar usuário" });
-    }
+    const salt = genSaltSync(8);
+
+    const hashSenha = hashSync(senha, salt);
+
+    const usuario = await client.usuario.create({
+      data: {
+        nome,
+        email,
+        senha: hashSenha,
+      },
+    });
+
+    res.json({
+      usuarioId: usuario.id,
+    });
+
   }
 
   static async login(req, res) {
-    try {
-      const { email, senha } = req.body;
 
-      const usuario = await client.usuario.findUnique({
-        where: { email },
+    const { email, senha } = req.body;
+
+    const usuario = await client.usuario.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!usuario) {
+      return res.json({
+        msg: "Usuário não encontrado.",
       });
-
-      if (!usuario) {
-        return res.status(401).json({ error: "Usuário não encontrado" });
-      }
-
-     
-      const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-      if (!senhaCorreta) {
-        return res.status(401).json({ error: "Senha incorreta" });
-      }
-
-      
-      res.json({
-        usuarioId: usuario.id,
-        message: "Login realizado com sucesso!",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao realizar login" });
     }
+
+    const senhaCorreta = compareSync(senha, usuario.senha);
+
+    if (!senhaCorreta) {
+      return res.json({
+        msg: "Senha incorreta.",
+      });
+    }
+
+    const token = sign({ id: usuario.id }, process.env.SENHA_SERVIDOR, { expiresIn: "1h" });
+    res.json({
+      msg: "Autenticado!",
+      token: token,
+    });
+  }
+
+  static async verificarAutenticacao(req, res, next) {
+
+    const authHeader = req.headers["authorization"];
+
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+      jwt.verify(token, process.env.SENHA_SERVIDOR, (err, payload) => {
+        if (err) {
+          return res.json({
+            msg: "Token inválido."
+          });
+        }
+        req.usuarioId = payload.id;
+        next();
+      });
+    } else {
+      res.json({
+        msg: "Token não encontrado."
+      });
+    }
+  }
+
+  static async verificarStatus(req, res, next) {
+    if (!req.usuarioId) {
+      res.json({
+        msg: "Usuário não autenticado."
+      });
+    }
+
+    const usuario = await client.usuario.findUnique({
+      where: {
+        id: req.usuarioId,
+      },
+    });
+
+    if (!usuario.adminStatus) {
+      res.json({
+        msg: "Acesso negado. Usuário sem privilégios de administrador."
+      });
+    }
+
+    next();
   }
 }
 
-module.exports = usuarioController;
+export default usuarioController

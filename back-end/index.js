@@ -1,12 +1,7 @@
-const express = require("express");
-const app = express();
+import { listen } from "./app";
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+const PORT = 3000;
 
-const usuarioRoutes = require("./routes/usuarioRoutes");
-app.use("/usuario", usuarioRoutes);
-
-app.listen(5015, () => {
-  console.log("Aplicação rodando na porta 5015...");
+listen(PORT, () => {
+  console.log(`Aplicação rodando na porta ${PORT}.`);
 });
